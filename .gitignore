@@ -9,3 +9,5 @@ env/
 *.log
 data/raw/
 .claude/
+data/app.db
+data/secret.key

@@ -1,0 +1,63 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Home · Rachit Stock Prediction</title>
+  <link rel="stylesheet" href="/static/styles.css">
+</head>
+<body>
+  <nav class="nav"><a class="brand" href="/">📈 Rachit Stock Prediction</a><div class="nav-links" id="nav-user"></div></nav>
+  <main class="container grid">
+    <section class="card hero">
+      <div class="bear" data-bear></div>
+      <div>
+        <div class="bubble">Ready to start your investing journey? 🚀</div>
+        <p class="muted" style="max-width:460px">Search any company in the world. I'll estimate how likely it is to fall or grow,
+          using price patterns, the latest news, social media and AI.</p>
+      </div>
+    </section>
+
+    <section class="card">
+      <h2>Find a company</h2>
+      <input type="search" id="q" placeholder="Search by name or ticker, e.g. Tesla, NVDA, Reliance…" autocomplete="off">
+      <div class="results" id="results"></div>
+    </section>
+
+    <section class="card">
+      <h2>Your watchlist</h2>
+      <p class="muted small" style="margin-top:0">Stocks you watch are checked automatically. Turn on iMessage alerts in <a href="/settings">Alerts</a>.</p>
+      <div class="results" id="watchlist"></div>
+    </section>
+
+    <p class="disclaimer">Predictions are estimates from machine learning and AI. They are often wrong and are not financial advice.
+      This app does not hold or invest money.</p>
+  </main>
+  <script src="/static/app.js"></script>
+  <script>
+    let all = [];
+    const results = document.getElementById("results");
+    const show = (list) => results.innerHTML = list.length ? list.map(companyCard).join("") : `<p class="muted">No companies found.</p>`;
+
+    async function load() {
+      all = await api("/api/companies");
+      show(all);
+      const watched = await api("/api/watchlist");
+      const byTicker = Object.fromEntries(all.map(c => [c.ticker, c]));
+      document.getElementById("watchlist").innerHTML = watched.length
+        ? watched.map(t => companyCard(byTicker[t] || { ticker: t, name: "" })).join("")
+        : `<p class="muted">Nothing yet. Open a company and tap “Watch”.</p>`;
+    }
+
+    let timer;
+    document.getElementById("q").oninput = (e) => {
+      clearTimeout(timer);
+      const q = e.target.value.trim();
+      if (!q) return show(all);
+      const lower = q.toLowerCase();
+      show(all.filter(c => c.ticker.toLowerCase().includes(lower) || c.name.toLowerCase().includes(lower)));
+      timer = setTimeout(async () => show(await api(`/api/companies?q=${encodeURIComponent(q)}`)), 350);
+    };
+    load();
+  </script>
+</body>
+</html>

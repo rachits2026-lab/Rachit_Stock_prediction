@@ -1,0 +1,141 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Company · Rachit Stock Prediction</title>
+  <link rel="stylesheet" href="/static/styles.css">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+</head>
+<body>
+  <nav class="nav"><a class="brand" href="/">📈 Rachit Stock Prediction</a><div class="nav-links" id="nav-user"></div></nav>
+  <main class="container" id="main">
+    <div class="loading card">
+      <div style="width:110px" data-bear></div>
+      <b>Crunching the numbers…</b>
+      <span class="muted small">Training models on 10 years of prices and reading the latest news. This takes about 20 seconds the first time.</span>
+    </div>
+  </main>
+  <script src="/static/app.js"></script>
+  <script>
+    const ticker = decodeURIComponent(location.pathname.split("/").pop()).toUpperCase();
+    document.title = `${ticker} · Rachit Stock Prediction`;
+
+    function meter(p, color) {
+      return `<div class="meter"><div style="width:${(p * 100).toFixed(0)}%;background:${color}"></div></div>`;
+    }
+    function verdictClass(v) {
+      return /fall|down/i.test(v) ? "bad" : /grow|up/i.test(v) ? "good" : "neutral";
+    }
+    function auc(x) { return x == null ? "not enough data" : x.toFixed(2); }
+
+    async function render() {
+      let r;
+      try { r = await api(`/api/predict/${encodeURIComponent(ticker)}`); }
+      catch (err) {
+        byId("main").innerHTML = `<div class="card"><h2>Couldn't analyze ${esc(ticker)}</h2><p class="error">${esc(err.message)}</p><a href="/">← Back to search</a></div>`;
+        return;
+      }
+      const watched = (await api("/api/watchlist")).includes(r.ticker);
+      const m = r.model, cur = r.currency;
+      const changeCls = r.day_change >= 0 ? "up" : "down";
+
+      byId("main").innerHTML = `
+      <div class="grid">
+        <section class="card">
+          <div style="display:flex;justify-content:space-between;gap:16px;flex-wrap:wrap;align-items:flex-start">
+            <div>
+              <h1>${esc(r.name)} <span class="muted">(${esc(r.ticker)})</span></h1>
+              <div class="muted small">${esc([r.sector, r.industry].filter(Boolean).join(" · "))}</div>
+              <div class="price">${money(r.price, cur)} <span class="${changeCls}" style="font-size:1rem">${r.day_change >= 0 ? "▲" : "▼"} ${pct(Math.abs(r.day_change), 2)}</span></div>
+              <div class="muted small">Share price at close on ${esc(r.price_date)}</div>
+            </div>
+            <div style="text-align:right">
+              <span class="verdict ${verdictClass(r.verdict)}">${esc(r.verdict)}</span><br><br>
+              <button id="watch" class="${watched ? "secondary" : ""}">${watched ? "✓ Watching" : "+ Watch"}</button>
+            </div>
+          </div>
+        </section>
+
+        <section class="grid grid-4">
+          <div class="card stat"><div class="label">Chance of falling ${pct(m.threshold)}+</div>
+            <div class="value down">${pct(r.fall_probability)}</div>${meter(r.fall_probability, "var(--down)")}
+            <div class="muted small">in the next ${m.horizon_days} trading days</div></div>
+          <div class="card stat"><div class="label">Chance of growing ${pct(m.threshold)}+</div>
+            <div class="value up">${pct(r.grow_probability)}</div>${meter(r.grow_probability, "var(--up)")}
+            <div class="muted small">in the next ${m.horizon_days} trading days</div></div>
+          <div class="card stat"><div class="label">Company value</div>
+            <div class="value">${bigMoney(r.market_cap, cur)}</div>
+            <div class="muted small">market capitalization</div></div>
+          <div class="card stat"><div class="label">Analyst target price</div>
+            <div class="value">${money(r.analyst_target, cur)}</div>
+            <div class="muted small">P/E ratio ${r.pe_ratio ? r.pe_ratio.toFixed(1) : "—"} · 52-week ${money(r.fifty_two_week_low, cur)}–${money(r.fifty_two_week_high, cur)}</div></div>
+        </section>
+
+        <section class="card">
+          <h2>Price & 10-day forecast</h2>
+          <div class="chart-box"><canvas id="chart"></canvas></div>
+          <p class="muted small">The dashed line is the model's day-by-day guess. On recent test data it called the daily direction correctly
+            ${pct(r.forecast.direction_accuracy)} of the time, so treat it as a rough guide.</p>
+        </section>
+
+        <section class="grid grid-2">
+          <div class="card">
+            <h2>How we got these numbers</h2>
+            <ul class="list">
+              <li><b>Price-pattern model</b>: ${pct(m.fall_probability)} fall / ${pct(m.grow_probability)} grow.
+                <div class="muted small">Historically this stock fell ${pct(m.threshold)}+ within ${m.horizon_days} days ${pct(m.fall_base_rate)} of the time
+                  and grew ${pct(m.threshold)}+ ${pct(m.grow_base_rate)} of the time. Test score (AUC, 0.5 = guessing, 1 = perfect):
+                  fall ${auc(m.fall_auc)}, grow ${auc(m.grow_auc)}.</div></li>
+              ${r.ai.map(a => `<li><b>${esc(a.provider)}</b>: ${pct(a.fall_probability)} fall / ${pct(a.grow_probability)} grow
+                <div class="muted small">${esc(a.summary)}</div></li>`).join("")}
+              ${r.ai.length ? "" : `<li class="muted">No news or social posts were found, so only the price model was used.</li>`}
+            </ul>
+            <p class="muted small">Final numbers are 60% price model and 40% the average of the news/AI scores.
+              Add a Gemini or Claude API key to get AI scoring (see README).</p>
+          </div>
+          <div class="card">
+            <h2>Latest news</h2>
+            <ul class="list">${r.news.slice(0, 8).map(n => `<li><a href="${esc(n.link)}" target="_blank" rel="noopener">${esc(n.title)}</a>
+              <div class="muted small">${esc(n.source)} · ${esc(n.published)}</div></li>`).join("") || `<li class="muted">No recent news found.</li>`}</ul>
+          </div>
+        </section>
+
+        <section class="card">
+          <h2>What people are saying</h2>
+          <ul class="list">${r.social.slice(0, 8).map(p => `<li>${p.sentiment ? `<span class="verdict ${p.sentiment === "Bullish" ? "good" : "bad"}" style="font-size:.75rem">${esc(p.sentiment)}</span> ` : ""}${esc(p.text)}
+            <div class="muted small">${esc(p.source)} · ${esc(p.published)}</div></li>`).join("") || `<li class="muted">No recent posts found.</li>`}</ul>
+        </section>
+
+        ${r.summary ? `<section class="card"><h2>About ${esc(r.name)}</h2><p class="muted">${esc(r.summary)}…</p></section>` : ""}
+        <p class="disclaimer">Estimates only, not financial advice. This app does not hold or invest money.</p>
+      </div>`;
+
+      byId("watch").onclick = async (e) => {
+        const on = e.target.classList.contains("secondary");
+        await api(`/api/watchlist/${encodeURIComponent(r.ticker)}`, { method: on ? "DELETE" : "POST" });
+        e.target.classList.toggle("secondary");
+        e.target.textContent = on ? "+ Watch" : "✓ Watching";
+      };
+
+      const labels = [...r.history.dates, ...r.forecast.dates];
+      const pad = (n) => Array(n).fill(null);
+      new Chart(byId("chart"), {
+        type: "line",
+        data: {
+          labels,
+          datasets: [
+            { label: "Close", data: [...r.history.close, ...pad(r.forecast.dates.length)], borderColor: "#2563eb", pointRadius: 0, borderWidth: 2 },
+            { label: "Forecast", data: [...pad(r.history.close.length - 1), r.history.close.at(-1), ...r.forecast.close],
+              borderColor: "#d97706", borderDash: [6, 4], pointRadius: 0, borderWidth: 2 },
+          ],
+        },
+        options: {
+          maintainAspectRatio: false, interaction: { mode: "index", intersect: false },
+          scales: { x: { ticks: { maxTicksLimit: 8 } }, y: { ticks: { callback: (v) => money(v, cur) } } },
+        },
+      });
+    }
+    render();
+  </script>
+</body>
+</html>

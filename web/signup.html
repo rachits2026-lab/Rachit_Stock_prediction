@@ -1,0 +1,39 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Sign up · Rachit Stock Prediction</title>
+  <link rel="stylesheet" href="/static/styles.css">
+</head>
+<body>
+  <div class="auth-wrap">
+    <form class="card auth-card" id="form">
+      <div class="bear-small" data-bear></div>
+      <h1 style="text-align:center">Create your account</h1>
+      <p class="muted" style="text-align:center;margin-top:0">Free, and it only takes a moment</p>
+      <label for="email">Email</label>
+      <input type="email" id="email" placeholder="example@gmail.com" autocomplete="email" required>
+      <label for="password">Password</label>
+      <input type="password" id="password" placeholder="Choose a password" autocomplete="new-password" required>
+      <label for="confirm-password">Confirm password</label>
+      <input type="password" id="confirm-password" placeholder="Type it again" autocomplete="new-password" required>
+      <div class="error" id="error"></div>
+      <button type="submit" style="width:100%;margin-top:8px">Sign up</button>
+      <p class="small" style="text-align:center">Already have an account? <a href="/login">Log in</a></p>
+    </form>
+  </div>
+  <script src="/static/app.js"></script>
+  <script>
+    document.getElementById("form").onsubmit = async (e) => {
+      e.preventDefault();
+      const error = document.getElementById("error");
+      error.textContent = "";
+      if (byId("password").value !== byId("confirm-password").value) { error.textContent = "Passwords don't match."; return; }
+      try {
+        await api("/api/auth/signup", { method: "POST", body: { email: byId("email").value, password: byId("password").value } });
+        location.href = "/";
+      } catch (err) { error.textContent = err.message; }
+    };
+  </script>
+</body>
+</html>

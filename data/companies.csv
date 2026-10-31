@@ -1,0 +1,103 @@
+ticker,name,sector,country
+AAPL,Apple,Technology,USA
+MSFT,Microsoft,Technology,USA
+NVDA,NVIDIA,Technology,USA
+GOOGL,Alphabet (Google),Communication,USA
+AMZN,Amazon,Consumer,USA
+META,Meta Platforms,Communication,USA
+TSLA,Tesla,Automotive,USA
+AVGO,Broadcom,Technology,USA
+ORCL,Oracle,Technology,USA
+CRM,Salesforce,Technology,USA
+ADBE,Adobe,Technology,USA
+AMD,Advanced Micro Devices,Technology,USA
+INTC,Intel,Technology,USA
+QCOM,Qualcomm,Technology,USA
+CSCO,Cisco,Technology,USA
+IBM,IBM,Technology,USA
+NFLX,Netflix,Communication,USA
+DIS,Walt Disney,Communication,USA
+UBER,Uber,Technology,USA
+ABNB,Airbnb,Consumer,USA
+SHOP,Shopify,Technology,Canada
+PLTR,Palantir,Technology,USA
+SNOW,Snowflake,Technology,USA
+PYPL,PayPal,Financials,USA
+SQ,Block,Financials,USA
+COIN,Coinbase,Financials,USA
+JPM,JPMorgan Chase,Financials,USA
+BAC,Bank of America,Financials,USA
+WFC,Wells Fargo,Financials,USA
+GS,Goldman Sachs,Financials,USA
+MS,Morgan Stanley,Financials,USA
+V,Visa,Financials,USA
+MA,Mastercard,Financials,USA
+AXP,American Express,Financials,USA
+BRK-B,Berkshire Hathaway,Financials,USA
+BLK,BlackRock,Financials,USA
+JNJ,Johnson & Johnson,Healthcare,USA
+UNH,UnitedHealth,Healthcare,USA
+LLY,Eli Lilly,Healthcare,USA
+PFE,Pfizer,Healthcare,USA
+MRK,Merck,Healthcare,USA
+ABBV,AbbVie,Healthcare,USA
+TMO,Thermo Fisher,Healthcare,USA
+MRNA,Moderna,Healthcare,USA
+WMT,Walmart,Consumer,USA
+COST,Costco,Consumer,USA
+TGT,Target,Consumer,USA
+HD,Home Depot,Consumer,USA
+NKE,Nike,Consumer,USA
+SBUX,Starbucks,Consumer,USA
+MCD,McDonald's,Consumer,USA
+KO,Coca-Cola,Consumer,USA
+PEP,PepsiCo,Consumer,USA
+PG,Procter & Gamble,Consumer,USA
+XOM,ExxonMobil,Energy,USA
+CVX,Chevron,Energy,USA
+COP,ConocoPhillips,Energy,USA
+NEE,NextEra Energy,Utilities,USA
+BA,Boeing,Industrials,USA
+CAT,Caterpillar,Industrials,USA
+GE,GE Aerospace,Industrials,USA
+LMT,Lockheed Martin,Industrials,USA
+UPS,UPS,Industrials,USA
+F,Ford,Automotive,USA
+GM,General Motors,Automotive,USA
+RIVN,Rivian,Automotive,USA
+T,AT&T,Communication,USA
+VZ,Verizon,Communication,USA
+SPOT,Spotify,Communication,Sweden
+TSM,Taiwan Semiconductor,Technology,Taiwan
+ASML,ASML,Technology,Netherlands
+SAP,SAP,Technology,Germany
+SONY,Sony,Technology,Japan
+TM,Toyota,Automotive,Japan
+HMC,Honda,Automotive,Japan
+NVO,Novo Nordisk,Healthcare,Denmark
+AZN,AstraZeneca,Healthcare,UK
+SHEL,Shell,Energy,UK
+BP,BP,Energy,UK
+HSBC,HSBC,Financials,UK
+UL,Unilever,Consumer,UK
+BABA,Alibaba,Consumer,China
+PDD,PDD Holdings (Temu),Consumer,China
+JD,JD.com,Consumer,China
+NIO,NIO,Automotive,China
+BIDU,Baidu,Communication,China
+INFY,Infosys,Technology,India
+HDB,HDFC Bank,Financials,India
+IBN,ICICI Bank,Financials,India
+RELIANCE.NS,Reliance Industries,Energy,India
+TCS.NS,Tata Consultancy Services,Technology,India
+TTM,Tata Motors,Automotive,India
+MELI,MercadoLibre,Consumer,Argentina
+SE,Sea Limited,Consumer,Singapore
+RY,Royal Bank of Canada,Financials,Canada
+TD,Toronto-Dominion Bank,Financials,Canada
+BHP,BHP Group,Materials,Australia
+RIO,Rio Tinto,Materials,UK
+VALE,Vale,Materials,Brazil
+PBR,Petrobras,Energy,Brazil
+SPY,S&P 500 ETF,Index Fund,USA
+QQQ,Nasdaq 100 ETF,Index Fund,USA

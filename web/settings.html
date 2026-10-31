@@ -1,0 +1,57 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Alerts · Rachit Stock Prediction</title>
+  <link rel="stylesheet" href="/static/styles.css">
+</head>
+<body>
+  <nav class="nav"><a class="brand" href="/">📈 Rachit Stock Prediction</a><div class="nav-links" id="nav-user"></div></nav>
+  <main class="container" style="max-width:560px">
+    <form class="card" id="form">
+      <h1>iMessage alerts</h1>
+      <p class="muted">When a stock on your watchlist looks likely to crash, the app texts you through the Messages app on this Mac.
+        It checks every hour and alerts at most once a day per stock.</p>
+      <label for="to">Your phone number or Apple ID email</label>
+      <input type="tel" id="to" placeholder="+1 555 123 4567">
+      <label for="threshold">Alert me when the chance of falling is at least <span id="tval"></span></label>
+      <input type="range" id="threshold" min="0.3" max="0.9" step="0.05" style="width:100%">
+      <label style="display:flex;gap:8px;align-items:center;font-weight:600"><input type="checkbox" id="enabled"> Turn on alerts</label>
+      <div class="error" id="msg"></div>
+      <div style="display:flex;gap:8px;flex-wrap:wrap">
+        <button type="submit">Save</button>
+        <button type="button" class="secondary" id="test">Send test message</button>
+      </div>
+      <p class="muted small">The first time, macOS may ask to let Terminal (or Python) control Messages. Click OK.
+        Messages must be signed in to iMessage on this Mac.</p>
+    </form>
+  </main>
+  <script src="/static/app.js"></script>
+  <script>
+    const msg = byId("msg");
+    const say = (text, ok) => { msg.textContent = text; msg.className = ok ? "error success" : "error"; };
+    const showT = () => byId("tval").textContent = pct(+byId("threshold").value);
+    byId("threshold").oninput = showT;
+
+    api("/api/me").then((me) => {
+      byId("to").value = me.imessage_to;
+      byId("threshold").value = me.alert_threshold;
+      byId("enabled").checked = me.alerts_enabled;
+      showT();
+    });
+
+    async function save() {
+      await api("/api/settings", { method: "PUT", body: {
+        imessage_to: byId("to").value, alerts_enabled: byId("enabled").checked, alert_threshold: +byId("threshold").value } });
+    }
+    byId("form").onsubmit = async (e) => {
+      e.preventDefault();
+      try { await save(); say("Saved.", true); } catch (err) { say(err.message); }
+    };
+    byId("test").onclick = async () => {
+      try { await save(); say("Sending…", true); await api("/api/alerts/test", { method: "POST" }); say("Test message sent! Check your phone.", true); }
+      catch (err) { say(err.message); }
+    };
+  </script>
+</body>
+</html>

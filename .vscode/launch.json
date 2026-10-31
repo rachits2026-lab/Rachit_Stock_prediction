@@ -2,7 +2,15 @@
   "version": "0.2.0",
   "configurations": [
     {
-      "name": "Run Streamlit app",
+      "name": "Run website (FastAPI)",
+      "type": "debugpy",
+      "request": "launch",
+      "module": "uvicorn",
+      "args": ["api.main:app", "--reload"],
+      "cwd": "${workspaceFolder}"
+    },
+    {
+      "name": "Run analyst dashboard (Streamlit)",
       "type": "debugpy",
       "request": "launch",
       "module": "streamlit",
